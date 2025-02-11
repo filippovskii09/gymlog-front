@@ -17,12 +17,12 @@ const AgePicker = () => {
     setSelectedAge(prev => (prev < maxAge ? prev + 1 : prev));
   };
 
-  const handleTouchStart = event => {
+  const handleTouchStart = (event: TouchEvent) => {
     const touch = event.touches[0];
     setTouchStart(touch.clientY);
   };
 
-  const handleTouchMove = event => {
+  const handleTouchMove = (event: TouchEvent) => {
     const touch = event.touches[0];
     const touchEnd = touch.clientY;
     if (touchStart - touchEnd > 30) {

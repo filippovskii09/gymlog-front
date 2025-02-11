@@ -1,4 +1,4 @@
-export const BackArrowIcon = ({ xl, top }: { xl: boolean; top: boolean }) => (
+export const BackArrowIcon = ({ xl, top }: { xl?: boolean; top?: boolean }) => (
   <svg
     width={xl ? 46 : 6}
     height={xl ? 42 : 11}
