@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { BackArrowIcon } from '../icons/BackArrowIcon';
 
@@ -8,65 +8,58 @@ const AgePicker = () => {
   const [selectedAge, setSelectedAge] = useState(28);
   const [touchStart, setTouchStart] = useState(0);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setSelectedAge(prev => (prev > minAge ? prev - 1 : prev));
-    console.log(selectedAge);
-  };
+  }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setSelectedAge(prev => (prev < maxAge ? prev + 1 : prev));
-  };
+  }, []);
 
   const handleTouchStart = (event: TouchEvent) => {
     const touch = event.touches[0];
     setTouchStart(touch.clientY);
   };
 
-  const handleTouchMove = (event: TouchEvent) => {
-    const touch = event.touches[0];
-    const touchEnd = touch.clientY;
-    if (touchStart - touchEnd > 30) {
-      handleNext();
-    } else if (touchEnd - touchStart > 30) {
-      handlePrev();
-    }
-  };
+  const handleTouchMove = useCallback(
+    (event: TouchEvent) => {
+      const touch = event.touches[0];
+      const touchEnd = touch.clientY;
+      const touchDifference = touchStart - touchEnd;
+
+      if (touchDifference > 30) {
+        handleNext();
+      } else if (touchDifference < -30) {
+        handlePrev();
+      }
+    },
+    [touchStart, handlePrev, handleNext] // Make sure to include touchStart in dependency array
+  );
 
   useEffect(() => {
     const element = document.getElementById('age-picker');
+    if (element) {
+      element.addEventListener('touchstart', handleTouchStart);
+      element.addEventListener('touchmove', handleTouchMove);
 
-    element?.addEventListener('touchstart', handleTouchStart);
-    element?.addEventListener('touchmove', handleTouchMove);
-
-    return () => {
-      element?.removeEventListener('touchstart', handleTouchStart);
-      element?.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [touchStart]);
+      return () => {
+        element.removeEventListener('touchstart', handleTouchStart);
+        element.removeEventListener('touchmove', handleTouchMove);
+      };
+    }
+  }, [handleTouchStart, handleTouchMove]);
 
   return (
     <div
       id="age-picker"
-      className="flex w-full flex-col items-center text-white"
+      className="flex w-full touch-none flex-col items-center text-white"
     >
       {/* Велике число зверху */}
       <div className="mb-8 text-6xl font-bold">{selectedAge}</div>
       <BackArrowIcon xl top />
 
       {/* Контейнер для вибору */}
-      {/* Кнопка "Назад" */}
-      {/*<button*/}
-      {/*  className="absolute left-0 z-50 px-2 py-1 bg-gray-800 rounded-full"*/}
-      {/*  onClick={handlePrev}>*/}
-      {/*  &#60;*/}
-      {/*</button>*/}
-
-      {/* Смуга з числами */}
-      <div
-        className={
-          'bg-light-purple mt-6 flex h-24 w-full items-center justify-center'
-        }
-      >
+      <div className="bg-light-purple mt-6 flex h-24 w-full items-center justify-center">
         <div className="relative flex w-full max-w-[400px] items-center justify-between">
           {[...Array(5)].map((_, index) => {
             const age = selectedAge + index - 2;
@@ -92,13 +85,6 @@ const AgePicker = () => {
           })}
         </div>
       </div>
-
-      {/* Кнопка "Вперед" */}
-      {/*<button*/}
-      {/*  className="absolute right-0 px-2 py-1 bg-gray-800 rounded-full"*/}
-      {/*  onClick={handleNext}>*/}
-      {/*  &#62;*/}
-      {/*</button>*/}
     </div>
   );
 };

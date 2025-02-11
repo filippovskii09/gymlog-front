@@ -33,7 +33,7 @@ const CustomCheckbox: FC<UniversalCheckboxProps> = memo(
       <button
         type="button"
         className={cn(
-          'flex w-full max-w-[323px] items-center justify-between transition-all',
+          'mx-auto flex w-full max-w-[323px] items-center justify-between transition-all',
           containerClassName
         )}
         role={type}
